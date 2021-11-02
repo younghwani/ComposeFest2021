@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -29,7 +30,8 @@ class MainActivity : ComponentActivity() {
 fun MyApp() {
     // 상태를 호이스트 가능하게 하면 상태 복제 및 버그 도입을 방지, 컴포저블 재사용에 도움이 됨.
     // 컴포저블의 부모에 의해 제어될 필요가 없는 경우 호이스팅되어서는 안됨.
-    var shouldShowOnboarding by remember { mutableStateOf(true) }
+    // rememberSaveable 사용을 통해 컴포저블이 컴포지션에 유지되지 않아도 상태의 손실을 불러오지 않음.
+    var shouldShowOnboarding by rememberSaveable { mutableStateOf(true) }
 
     if (shouldShowOnboarding) {
         OnBoardingScreen(onContinueClicked = { shouldShowOnboarding = false })
