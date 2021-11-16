@@ -147,35 +147,59 @@ fun TodoItemInlineEditor(
     item: TodoItem,
     onEditItemChange: (TodoItem) -> Unit,
     onEditDone: () -> Unit,
-    onRemoveItem: (TodoItem) -> Unit
+    onRemoveItem: () -> Unit
 ) = TodoItemInput(
     text = item.task,
     onTextChange = { onEditItemChange(item.copy(task = it)) },
     submit = onEditDone,
     iconsVisible = true,
     icon = item.icon,
-    onIconChange = {onEditItemChange(item.copy(icon = it))}
+    onIconChange = {onEditItemChange(item.copy(icon = it))},
+    buttonSlot = {
+        Row {
+            val shrinkButtons = Modifier.widthIn(20.dp)
+            TextButton(onClick = onEditDone, modifier = shrinkButtons) {
+                Text(
+                    text = "\uD83D\uDCBE",
+                    textAlign = TextAlign.End,
+                    modifier = Modifier.width(30.dp)
+                )
+            }
+            TextButton(onClick = onRemoveItem, modifier = shrinkButtons) {
+                Text(
+                    text = "❌",
+                    textAlign = TextAlign.End,
+                    modifier = Modifier.width(30.dp)
+                )
+            }
+        }
+    }
 )
 
 @Composable
 fun TodoItemEntryInput(onItemComplete: (TodoItem) -> Unit) {
-    val (text, setText) = remember { mutableStateOf("") }
-    val (icon, setIcon) = remember { mutableStateOf(TodoIcon.Default) }
-    val iconsVisible = text.isNotBlank()
+    val (text, onTextChange) = remember { mutableStateOf("") }
+    val (icon, onIconChange) = remember { mutableStateOf(TodoIcon.Default) }
+
+//    val iconsVisible = text.isNotBlank()
     val submit = {
-        onItemComplete(TodoItem(text, icon))
-        setIcon(TodoIcon.Default)
-        setText("")
+        if (text.isNotBlank()) {
+            onItemComplete(TodoItem(text, icon))
+            onIconChange(TodoIcon.Default)
+            onTextChange("")
+        }
     }
 
     TodoItemInput(
         text = text,
-        onTextChange = setText,
+        onTextChange = onTextChange,
         submit = submit,
-        iconsVisible = iconsVisible,
+        iconsVisible = text.isNotBlank(),
         icon = icon,
-        onIconChange = setIcon
-    )
+        onIconChange = onIconChange
+    ) {
+        TodoEditButton(onClick = submit, text = "Add", enabled = text.isNotBlank())
+    }
 }
 
 @Composable
@@ -185,7 +209,8 @@ fun TodoItemInput(
     submit: () -> Unit,
     iconsVisible: Boolean,
     icon: TodoIcon,
-    onIconChange: (TodoIcon) -> Unit
+    onIconChange: (TodoIcon) -> Unit,
+    buttonSlot: @Composable () -> Unit
 ) {
     Column {
         Row(
@@ -201,12 +226,10 @@ fun TodoItemInput(
                     .padding(end = 8.dp),
                 onImeAction = submit
             )
-            TodoEditButton(
-                onClick = submit,
-                text = "Add",
-                modifier = Modifier.align(Alignment.CenterVertically),
-                enabled = text.isNotBlank()
-            )
+
+            Spacer(modifier = Modifier.width(8.dp))
+            Box(Modifier.align(Alignment.CenterVertically)) { buttonSlot() }
+
         }
         if (iconsVisible) {
             AnimatedIconRow(
