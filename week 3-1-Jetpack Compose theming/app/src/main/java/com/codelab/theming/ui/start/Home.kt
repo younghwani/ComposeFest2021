@@ -16,6 +16,7 @@
 
 package com.codelab.theming.ui.start
 
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -106,7 +107,7 @@ fun Header(
     Surface(
         color = MaterialTheme.colors.onSurface.copy(alpha = 0.1f),
         contentColor = MaterialTheme.colors.primary,
-        modifier = modifier
+        modifier = modifier.semantics { heading() }
     ) {
         Text(
             text = text,
@@ -245,5 +246,11 @@ private fun FeaturedPostDarkPreview() {
 @Preview("Home")
 @Composable
 private fun HomePreview() {
+    Home()
+}
+
+@Preview("Dark Home", uiMode = UI_MODE_NIGHT_YES)
+@Composable
+private fun HomeDarkPreview() {
     Home()
 }
